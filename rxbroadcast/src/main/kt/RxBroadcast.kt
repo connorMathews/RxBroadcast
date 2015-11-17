@@ -16,7 +16,8 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater
 
 object RxBroadcast {
     /**
-     * Creates a stateful [Observable] of [NetworkInfo] and changes via a
+     * Example:
+     * Creates a [Observable] of [NetworkInfo] and changes via a
      * [BroadcastReceiver]. You probably only want to do this once per
      * application/activity/service and then share the resulting observable.
      */
@@ -40,6 +41,7 @@ object RxBroadcast {
     }
 
     internal var scheduler: HandlerScheduler;
+
     init {
         val worker = HandlerThread("BroadcastReceiver")
         worker.start()
@@ -108,12 +110,12 @@ internal class BroadcastOnSubscribe<T>(val context: Context,
 }
 
 // Forked from RxBinding's MainThreadSubscription.
-internal abstract class HandlerSubscription(val handler: Handler) : Subscription,
-        Runnable {
+internal abstract class HandlerSubscription(val handler: Handler) :
+        Subscription, Runnable {
     @Volatile var unsubscribed: Int = 0
 
     companion object {
-        val unsubscribedUpdater: AtomicIntegerFieldUpdater<HandlerSubscription> =
+        val unsubscribedUpdater =
                 AtomicIntegerFieldUpdater.newUpdater(
                         HandlerSubscription::class.java, "unsubscribed")
     }
