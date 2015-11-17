@@ -26,7 +26,21 @@ object RxBroadcast {
                 context,
                 IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION),
                 null,
-                { context, intent -> context.cm().activeNetworkInfo }))
+                { context, intent -> context.cm().activeNetworkInfo }),
+                scheduler)
+    }
+    
+    fun <T> broadcast(context: Context,
+                      filter: IntentFilter,
+                      permissions: String?,
+                      receiveLiteral: (Context, Intent) -> T,
+                      handler: Handler): Observable<T> {
+        return create(BroadcastOnSubscribe(
+                context,
+                filter,
+                permissions,
+                receiveLiteral),
+                HandlerScheduler.from(handler))
     }
 
     fun Context.cm(): ConnectivityManager {
@@ -34,7 +48,8 @@ object RxBroadcast {
                 as ConnectivityManager
     }
 
-    internal fun <T> create(onSubscribe: BroadcastOnSubscribe<T>):
+    internal fun <T> create(onSubscribe: BroadcastOnSubscribe<T>,
+                            scheduler: HandlerScheduler):
             Observable<T> {
         return Observable.create(onSubscribe)
                 .subscribeOn(scheduler)
